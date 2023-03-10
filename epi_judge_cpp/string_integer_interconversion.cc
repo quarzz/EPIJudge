@@ -4,14 +4,38 @@
 #include "test_framework/test_failure.h"
 using std::string;
 
+#define log(x) std::cout << #x << ": " << (x) << std::endl
+
+namespace {
+
+}
+
 string IntToString(int x) {
-  // TODO - you fill in here.
-  return "0";
+  if (!x) return "0";
+
+  string s;
+  const auto sign = x < 0 ? -1 : 1;
+
+  for (auto i = x; i; i /= 10)
+    s += (i % 10) * sign + '0';
+
+  if (sign < 0) s += '-';
+  std::reverse(s.begin(), s.end());
+
+  return s;
 }
+
 int StringToInt(const string& s) {
-  // TODO - you fill in here.
-  return 0;
+  auto x = 0;
+  const auto sign = s[0] == '-' ? -1 : 1;
+  const auto shift = std::isdigit(s[0]) ? 0 : 1;
+
+  for (auto i = s.begin() + shift; i != s.end(); ++i)
+    x = x * 10 + (*i - '0') * sign;
+
+  return x;
 }
+
 void Wrapper(int x, const string& s) {
   if (stoi(IntToString(x)) != x) {
     throw TestFailure("Int to string conversion failed");
