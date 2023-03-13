@@ -1300,7 +1300,7 @@ problem_mapping = {
     "Chapter 11: Searching": {
         "11.01 Search a sorted array for first occurrence of k": {
             "C++: search_first_key.cc": {
-                "passed": 0,
+                "passed": 314,
                 "total": 314
             },
             "Java: SearchFirstKey.java": {
@@ -1470,7 +1470,7 @@ problem_mapping = {
         },
         "12.02 Is an anonymous letter constructible?": {
             "C++: is_anonymous_letter_constructible.cc": {
-                "passed": 0,
+                "passed": 212,
                 "total": 212
             },
             "Java: IsAnonymousLetterConstructible.java": {
