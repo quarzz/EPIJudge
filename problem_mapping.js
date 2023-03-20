@@ -2332,7 +2332,7 @@ problem_mapping = {
         },
         "17.01 Compute an optimum assignment of tasks": {
             "C++: task_pairing.cc": {
-                "passed": 0,
+                "passed": 500,
                 "total": 500
             },
             "Java: TaskPairing.java": {
