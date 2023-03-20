@@ -2148,7 +2148,7 @@ problem_mapping = {
         },
         "16.01 Count the number of score combinations": {
             "C++: number_of_score_combinations.cc": {
-                "passed": 0,
+                "passed": 1003,
                 "total": 1003
             },
             "Java: NumberOfScoreCombinations.java": {
