@@ -1,7 +1,7 @@
 #include <istream>
 #include <string>
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "test_framework/generic_test.h"
@@ -12,8 +12,8 @@
 // #define log(x) std::cout << #x << ": " << (x) << std::endl
 #define log(x) nullptr
 
-using std::map;
-using std::set;
+using std::unordered_map;
+using std::unordered_set;
 using std::vector;
 
 enum class Color { kWhite, kBlack };
@@ -31,8 +31,21 @@ bool operator<(const Coordinate& l, const Coordinate& r) {
   return l.x < r.x || l.x == r.x && l.y < r.y;
 }
 
+struct Hash {
+  std::size_t operator()(const Coordinate& c) const {
+    std::size_t hash = 14695981039346656037ull;
+    const char* data = reinterpret_cast<const char*>(&c);
+    const std::size_t size = sizeof(c);
+    for (std::size_t i = 0; i < size; ++i) {
+      hash ^= data[i];
+      hash *= 1099511628211ull;
+    }
+    return hash;
+  }
+};
+
 namespace {
-  using Graph = map<Coordinate, set<Coordinate>>;
+  using Graph = unordered_map<Coordinate, unordered_set<Coordinate, Hash>, Hash>;
 
   const Graph build_graph(const vector<vector<Color>>& maze) {
     Graph graph;
@@ -67,7 +80,7 @@ namespace {
   ) {
     std::queue<Coordinate> q;
     q.push(from);
-    std::map<Coordinate, Coordinate> visited_from;
+    std::unordered_map<Coordinate, Coordinate, Hash> visited_from;
 
     while (!q.empty()) {
       const auto cur = q.front(); q.pop();
@@ -97,6 +110,9 @@ namespace {
   }
 }
 
+// Improvements
+// I) trees -> hashes
+// II) don't store and use coordinates, map them to 0, 1, 2... and use graph of them
 vector<Coordinate> SearchMaze(vector<vector<Color>> maze, const Coordinate& s,
                               const Coordinate& e) {
   auto graph = build_graph(maze);
