@@ -1,24 +1,110 @@
 #include <istream>
 #include <string>
+#include <map>
+#include <set>
 #include <vector>
 
 #include "test_framework/generic_test.h"
 #include "test_framework/serialization_traits.h"
 #include "test_framework/test_failure.h"
 #include "test_framework/timed_executor.h"
+
+// #define log(x) std::cout << #x << ": " << (x) << std::endl
+#define log(x) nullptr
+
+using std::map;
+using std::set;
 using std::vector;
+
 enum class Color { kWhite, kBlack };
 struct Coordinate {
   bool operator==(const Coordinate& that) const {
     return x == that.x && y == that.y;
   }
 
-  int x, y;
+  int x = -1, y = -1;
 };
+
+static const Coordinate NullCoordinate;
+
+bool operator<(const Coordinate& l, const Coordinate& r) {
+  return l.x < r.x || l.x == r.x && l.y < r.y;
+}
+
+namespace {
+  using Graph = map<Coordinate, set<Coordinate>>;
+
+  const Graph build_graph(const vector<vector<Color>>& maze) {
+    Graph graph;
+
+    const auto insert_if = [&graph, &maze] (Coordinate s, Coordinate u) {
+      if (u.x < 0 || u.x >= maze.size())
+        return;
+      if (u.y < 0 || u.y >= maze.front().size())
+        return;
+      if (maze[u.x][u.y] == Color::kWhite)
+        graph[s].insert(u);
+    };
+    const auto add_neighbors = [insert_if](int i, int j) {
+      insert_if({i, j}, {i - 1, j});
+      insert_if({i, j}, {i, j - 1});
+      insert_if({i, j}, {i + 1, j});
+      insert_if({i, j}, {i, j + 1});
+    };
+
+    for (size_t i = 0; i < maze.size(); ++i)
+      for (size_t j = 0; j < maze[i].size(); ++j)
+        if (maze[i][j] == Color::kWhite)
+          add_neighbors(i, j);
+
+    return graph;
+  }
+
+  vector<Coordinate> find_path(
+    Graph& graph,
+    const Coordinate& from,
+    const Coordinate& to
+  ) {
+    std::queue<Coordinate> q;
+    q.push(from);
+    std::map<Coordinate, Coordinate> visited_from;
+
+    while (!q.empty()) {
+      const auto cur = q.front(); q.pop();
+
+      for (const auto& neighbor: graph[cur]) {
+        if (visited_from[neighbor] == NullCoordinate) {
+          q.push(neighbor);
+          visited_from[neighbor] = cur;
+        }
+      }
+    }
+
+    if (visited_from[to] == NullCoordinate) return {};
+
+    vector<Coordinate> path;
+    auto cur = to;
+
+    while (!(cur == from)) {
+      path.push_back(cur);
+      cur = visited_from[cur];
+    }
+
+    path.push_back(from);
+    std::reverse(path.begin(), path.end());
+
+    return path;
+  }
+}
+
 vector<Coordinate> SearchMaze(vector<vector<Color>> maze, const Coordinate& s,
                               const Coordinate& e) {
-  // TODO - you fill in here.
-  return {};
+  auto graph = build_graph(maze);
+  log("Graph built");
+  auto path = find_path(graph, s, e);
+  log("Path found");
+
+  return path;
 }
 
 namespace test_framework {
