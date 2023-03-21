@@ -25,38 +25,22 @@ struct Coordinate {
   int x = -1, y = -1;
 };
 
-static const Coordinate NullCoordinate;
-
-bool operator<(const Coordinate& l, const Coordinate& r) {
-  return l.x < r.x || l.x == r.x && l.y < r.y;
-}
-
-struct Hash {
-  std::size_t operator()(const Coordinate& c) const {
-    std::size_t hash = 14695981039346656037ull;
-    const char* data = reinterpret_cast<const char*>(&c);
-    const std::size_t size = sizeof(c);
-    for (std::size_t i = 0; i < size; ++i) {
-      hash ^= data[i];
-      hash *= 1099511628211ull;
-    }
-    return hash;
-  }
-};
-
 namespace {
-  using Graph = unordered_map<Coordinate, unordered_set<Coordinate, Hash>, Hash>;
+  using Graph = vector<vector<int>>;
 
   const Graph build_graph(const vector<vector<Color>>& maze) {
-    Graph graph;
+    const int n = maze.size();
+    const int m = maze[0].size();
 
-    const auto insert_if = [&graph, &maze] (Coordinate s, Coordinate u) {
+    Graph graph(n * m + 1);
+
+    const auto insert_if = [&graph, &maze, m] (Coordinate s, Coordinate u) {
       if (u.x < 0 || u.x >= maze.size())
         return;
       if (u.y < 0 || u.y >= maze.front().size())
         return;
       if (maze[u.x][u.y] == Color::kWhite)
-        graph[s].insert(u);
+        graph[s.x * m + s.y].push_back(u.x * m + u.y);
     };
     const auto add_neighbors = [insert_if](int i, int j) {
       insert_if({i, j}, {i - 1, j});
@@ -73,29 +57,35 @@ namespace {
     return graph;
   }
 
-  vector<Coordinate> find_path(
-    Graph& graph,
-    const Coordinate& from,
-    const Coordinate& to
+  vector<int> find_path(
+    const Graph& graph,
+    const int& from,
+    const int& to
   ) {
-    std::queue<Coordinate> q;
+    std::queue<int> q;
     q.push(from);
-    std::unordered_map<Coordinate, Coordinate, Hash> visited_from;
+    vector<int> visited_from(graph.size(), -1);
 
     while (!q.empty()) {
       const auto cur = q.front(); q.pop();
 
       for (const auto& neighbor: graph[cur]) {
-        if (visited_from[neighbor] == NullCoordinate) {
+        if (visited_from[neighbor] == -1) {
           q.push(neighbor);
           visited_from[neighbor] = cur;
+
+          if (neighbor == to) {
+            std::queue<int> q2;
+            q.swap(q2);
+            break;
+          }
         }
       }
     }
 
-    if (visited_from[to] == NullCoordinate) return {};
+    if (visited_from[to] == -1) return {};
 
-    vector<Coordinate> path;
+    vector<int> path;
     auto cur = to;
 
     while (!(cur == from)) {
@@ -108,18 +98,53 @@ namespace {
 
     return path;
   }
+
+  bool bfs(
+    vector<vector<Color>>& maze,
+    const Coordinate& from,
+    const Coordinate& to,
+    vector<Coordinate>& path
+  ) {
+    if (from.x < 0 || from.x >= maze.size()) return false;
+    if (from.y < 0 || from.y >= maze[0].size()) return false;
+    if (maze[from.x][from.y] == Color::kBlack) return false;
+
+    maze[from.x][from.y] = Color::kBlack;
+    path.push_back(from);
+
+    if (from == to) return true;
+
+    const vector<Coordinate> nexts {
+      { from.x, from.y + 1 },
+      { from.x + 1, from.y },
+      { from.x, from.y - 1 },
+      { from.x - 1, from.y }
+    };
+
+    for (const auto& next: nexts)
+      if (bfs(maze, next, to, path))
+        return true;
+
+    path.pop_back();
+    return false;
+  }
 }
 
 // Improvements
 // I) trees -> hashes
+//   (-> 140 ms)
 // II) don't store and use coordinates, map them to 0, 1, 2... and use graph of them
-vector<Coordinate> SearchMaze(vector<vector<Color>> maze, const Coordinate& s,
-                              const Coordinate& e) {
-  auto graph = build_graph(maze);
-  log("Graph built");
-  auto path = find_path(graph, s, e);
-  log("Path found");
-
+//   (-> 130 ms) (with hashes)
+//   (-> 65 ms) (with vectors)
+// III) no encoding/decoding
+//   (-> 1ms) (but this harder to abstract and scale (in context of architecture))
+vector<Coordinate> SearchMaze(
+  vector<vector<Color>> maze,
+  const Coordinate& s,
+  const Coordinate& e
+) {
+  vector<Coordinate> path;
+  bfs(maze, s, e, path);
   return path;
 }
 
