@@ -126,13 +126,12 @@ namespace {
   }
 
   // Passing. The fastest of all my solutions
+  //   OMG, look at how unintuitive looks this final solution
   int iterative_vector_less_space(int S, const vector<int> &w) {
     vector<int> A(S + 1, 0);
+    A[0] = 1;
 
-    for (size_t j = 0; j <= S; ++j)
-      A[j] = j % w[0] ? 0 : 1;
-
-    for (size_t i = 1; i < w.size(); ++i)
+    for (size_t i = 0; i < w.size(); ++i)
       for (int j = w[i]; j <= S; ++j)
         A[j] += A[j - w[i]];
 
