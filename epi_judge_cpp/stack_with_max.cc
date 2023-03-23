@@ -8,8 +8,8 @@
 using std::length_error;
 using std::stack;
 
-class Stack {
- public:
+class UsingStackWithMaxes {
+public:
   bool Empty() const {
     return s.empty();
   }
@@ -31,6 +31,44 @@ private:
   std::stack<int> s;
   std::stack<int> s_max;
 };
+
+class UsingReducedStackWithMaxes {
+  struct ReducedMax {
+    int max;
+    int count;
+  };
+public:
+  bool Empty() const {
+    return s.empty();
+  }
+  int Max() const {
+    return s_max.top().max;
+  }
+  int Pop() {
+    int val = s.top();
+    s.pop();
+
+    if (s_max.top().count == 1)
+      s_max.pop();
+    else
+      --s_max.top().count;
+
+    return val;
+  }
+  void Push(int x) {
+    s.push(x);
+
+    if (Empty() || x > Max())
+      s_max.push({ x, 1 });
+    else
+      ++s_max.top().count;
+  }
+
+private:
+  std::stack<int> s;
+  std::stack<ReducedMax> s_max;
+};
+
 struct StackOp {
   std::string op;
   int argument;
@@ -40,6 +78,8 @@ namespace test_framework {
 template <>
 struct SerializationTrait<StackOp> : UserSerTrait<StackOp, std::string, int> {};
 }  // namespace test_framework
+
+using Stack = UsingStackWithMaxes;
 
 void StackTester(const std::vector<StackOp>& ops) {
   try {
