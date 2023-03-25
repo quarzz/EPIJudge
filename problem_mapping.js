@@ -524,7 +524,7 @@ problem_mapping = {
         },
         "6.04 Replace and remove": {
             "C++: replace_and_remove.cc": {
-                "passed": 0,
+                "passed": 501,
                 "total": 501
             },
             "Java: ReplaceAndRemove.java": {
