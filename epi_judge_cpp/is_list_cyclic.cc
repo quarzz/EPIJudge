@@ -1,4 +1,5 @@
 #include <memory>
+#include <optional>
 
 #include "list_node.h"
 #include "test_framework/generic_test.h"
@@ -6,9 +7,52 @@
 #include "test_framework/timed_executor.h"
 using std::shared_ptr;
 
+namespace {
+  auto get_next(std::shared_ptr<ListNode<int>> head, int count = 1) {
+    while (head && count--)
+      head = head->next;
+
+    return head;
+  }
+
+  auto get_cycle_length(const std::shared_ptr<ListNode<int>>& head) {
+    auto i = 1;
+    auto it1 = head, it2 = get_next(head);
+
+    while (it2 && it1 != it2) {
+      it1 = it1->next;
+      it2 = get_next(it2, 2);
+      ++i;
+    }
+
+    return it2 ? std::make_optional(i) : std::nullopt;
+  }
+
+  auto get_cycle_start(
+    const std::shared_ptr<ListNode<int>>& head,
+    int cycle_length
+  ) {
+    auto it1 = head;
+    auto it2 = get_next(it1, cycle_length);
+
+    while (it1 != it2) {
+      it1 = it1->next;
+      it2 = it2->next;
+    }
+
+    return it1;
+  }
+
+  // Passing
+  auto impl(const std::shared_ptr<ListNode<int>>& head) {
+    const auto cycle_length = get_cycle_length(head);
+    return cycle_length ? get_cycle_start(head, *cycle_length) : nullptr;
+  }
+}
+
 shared_ptr<ListNode<int>> HasCycle(const shared_ptr<ListNode<int>>& head) {
   // TODO - you fill in here.
-  return nullptr;
+  return impl(head);
 }
 void HasCycleWrapper(TimedExecutor& executor,
                      const shared_ptr<ListNode<int>>& head, int cycle_idx) {
