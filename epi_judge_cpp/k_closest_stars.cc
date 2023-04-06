@@ -17,11 +17,68 @@ struct Star {
   double x, y, z;
 };
 
+namespace {
+  // Passing
+  //   But almost two times slower, than vector. Useless adapter.
+  vector<Star> using_priority_queue(
+    vector<Star>::const_iterator stars_begin,
+    const vector<Star>::const_iterator& stars_end,
+    int k
+  ) {
+    if (stars_end - stars_begin < k)
+      return { stars_begin, stars_end };
+
+    // Make heap of first k stars
+    std::priority_queue<Star> heap { stars_begin, stars_begin + k };
+
+    // Push others into heap, removing furthest elements each iteration
+    for (stars_begin += k; stars_begin != stars_end; ++stars_begin)
+      if (*stars_begin < heap.top()) {
+        heap.pop();
+        heap.emplace(*stars_begin);
+      }
+
+    std::vector<Star> res;
+    while (!heap.empty()) {
+      res.emplace_back(heap.top());
+      heap.pop();
+    }
+
+    return res;
+  }
+
+  // Passing
+  vector<Star> using_vector(
+    vector<Star>::const_iterator stars_begin,
+    const vector<Star>::const_iterator& stars_end,
+    int k
+  ) {
+    if (stars_end - stars_begin < k)
+      return { stars_begin, stars_end };
+
+    // Make heap of first k stars
+    std::vector<Star> closest_stars { stars_begin, stars_begin + k };
+    const auto heap_begin = closest_stars.data();
+    const auto heap_end = heap_begin + k;
+    std::make_heap(closest_stars.begin(), closest_stars.end());
+
+    // Push others into heap, removing furthest elements each iteration
+    for (stars_begin += k; stars_begin != stars_end; ++stars_begin)
+      if (*stars_begin < *heap_begin) {
+        std::pop_heap(heap_begin, heap_end);
+        *(heap_end - 1) = *stars_begin;
+        std::push_heap(heap_begin, heap_end);
+      }
+
+    return closest_stars;
+  }
+}
+
 vector<Star> FindClosestKStars(vector<Star>::const_iterator stars_begin,
                                const vector<Star>::const_iterator& stars_end,
                                int k) {
   // TODO - you fill in here.
-  return {};
+  return using_priority_queue(stars_begin, stars_end, k);
 }
 
 namespace test_framework {

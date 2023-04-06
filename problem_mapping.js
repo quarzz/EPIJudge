@@ -1256,7 +1256,7 @@ problem_mapping = {
         },
         "10.04 Compute the k closest stars": {
             "C++: k_closest_stars.cc": {
-                "passed": 0,
+                "passed": 51,
                 "total": 51
             },
             "Java: KClosestStars.java": {
