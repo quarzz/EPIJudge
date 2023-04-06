@@ -1398,7 +1398,7 @@ problem_mapping = {
         },
         "11.08 Find the kth largest element": {
             "C++: kth_largest_in_array.cc": {
-                "passed": 0,
+                "passed": 503,
                 "total": 503
             },
             "Java: KthLargestInArray.java": {
