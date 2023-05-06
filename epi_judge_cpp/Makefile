@@ -8,10 +8,10 @@ SRC_DIR := .
 TEST_DATA_DIR := ../test_data
 
 # Modify this line if you want to pass custom arguments
-PROGRAM_ARGS := --test-data-dir $(TEST_DATA_DIR) 
+PROGRAM_ARGS := --test-data-dir $(TEST_DATA_DIR)
 
 CXX_COMPILER := g++
-CXX_FLAGS := -std=c++14 -pthread -Werror -Wno-unused-variable -Wno-sign-compare
+CXX_FLAGS := -std=c++17 -pthread -Werror -Wno-unused-variable -Wno-sign-compare
 CXX_FLAGS_DEBUG := $(CXX_FLAGS) -g -O0
 
 LAST_MODIFIED_CXX_FILE = $(shell ls -rt $(SRC_DIR)/*\.cc | tail -1)

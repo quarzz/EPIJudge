@@ -1512,7 +1512,7 @@ problem_mapping = {
         },
         "12.05 Find the nearest repeated entries in an array": {
             "C++: nearest_repeated_entries.cc": {
-                "passed": 0,
+                "passed": 505,
                 "total": 505
             },
             "Java: NearestRepeatedEntries.java": {
