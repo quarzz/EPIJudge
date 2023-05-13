@@ -22,6 +22,20 @@ namespace {
 
     return last_greater_node;
   }
+
+  Node* variant(const unique_ptr<BstNode<int>>& tree, int val) {
+    auto cur = tree.get();
+    Node* last_equal = nullptr;
+
+    while (cur) {
+      if (cur->data == val)
+        last_equal = cur;
+
+      cur = cur->data < val ? cur->right.get() : cur->left.get();
+    }
+
+    return last_equal;
+  }
 }
 
 BstNode<int>* FindFirstGreaterThanK(
