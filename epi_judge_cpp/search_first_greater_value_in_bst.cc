@@ -4,10 +4,32 @@
 #include "test_framework/generic_test.h"
 using std::unique_ptr;
 
-BstNode<int>* FindFirstGreaterThanK(const unique_ptr<BstNode<int>>& tree,
-                                    int k) {
+namespace {
+  using Node = BstNode<int>;
+
+  Node* impl(const unique_ptr<BstNode<int>>& tree, int k) {
+    auto current_node = tree.get();
+    Node* last_greater_node = nullptr;
+
+    while (current_node) {
+      if (current_node->data <= k) {
+        current_node = current_node->right.get();
+      } else {
+        last_greater_node = current_node;
+        current_node = current_node->left.get();
+      }
+    }
+
+    return last_greater_node;
+  }
+}
+
+BstNode<int>* FindFirstGreaterThanK(
+  const unique_ptr<BstNode<int>>& tree,
+  int k
+) {
   // TODO - you fill in here.
-  return nullptr;
+  return impl(tree, k);
 }
 int FindFirstGreaterThanKWrapper(const unique_ptr<BstNode<int>>& tree, int k) {
   auto result = FindFirstGreaterThanK(tree, k);
