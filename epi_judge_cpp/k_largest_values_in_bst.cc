@@ -6,9 +6,29 @@
 using std::unique_ptr;
 using std::vector;
 
+namespace {
+  void reverse_in_order(
+    const unique_ptr<BstNode<int>>& tree,
+    int k,
+    vector<int>& largest_elements
+  ) {
+    if (!tree || largest_elements.size() == k) return;
+
+    reverse_in_order(tree->right, k, largest_elements);
+
+    if (largest_elements.size() == k) return;
+    largest_elements.emplace_back(tree->data);
+
+    reverse_in_order(tree->left, k, largest_elements);
+  }
+}
+
 vector<int> FindKLargestInBST(const unique_ptr<BstNode<int>>& tree, int k) {
   // TODO - you fill in here.
-  return {};
+  vector<int> largest_elements;
+  reverse_in_order(tree, k, largest_elements);
+
+  return largest_elements;
 }
 
 int main(int argc, char* argv[]) {
