@@ -141,6 +141,62 @@ namespace {
 
     return res;
   }
+
+  int bottom_up_vector_1d_memo(const std::string& A, const std::string& B) {
+    const auto [a, b] = A.size() > B.size()
+      ? std::make_pair(std::ref(A), std::ref(B))
+      : std::make_pair(std::ref(B), std::ref(A));
+
+    std::vector<int> cur_memo(b.size() + 1, 0);
+    std::vector<int> prev_memo { cur_memo };
+
+    for (int j = 0; j < b.size(); ++j)
+      prev_memo[j] = b.size() - j;
+
+    for (int i = a.size() - 1; i >= 0; --i) {
+      cur_memo[b.size()] = a.size() - i;
+
+      for (int j = b.size() - 1; j >= 0; --j) {
+        cur_memo[j] = a[i] == b[j]
+          ? prev_memo[j + 1]
+          : 1 + std::min({ cur_memo[j + 1], prev_memo[j + 1], prev_memo[j] });
+      }
+
+      std::swap(prev_memo, cur_memo);
+    }
+
+    return prev_memo[0];
+  }
+
+  int bottom_up_raw_1d_memo(const std::string& A, const std::string& B) {
+    const auto [a, b] = A.size() > B.size()
+      ? std::make_pair(std::ref(A), std::ref(B))
+      : std::make_pair(std::ref(B), std::ref(A));
+
+    auto cur_memo = new int[b.size() + 1];
+    auto prev_memo = new int[b.size() + 1];
+
+    for (int j = 0; j < b.size(); ++j)
+      prev_memo[j] = b.size() - j;
+
+    for (int i = a.size() - 1; i >= 0; --i) {
+      cur_memo[b.size()] = a.size() - i;
+
+      for (int j = b.size() - 1; j >= 0; --j) {
+        cur_memo[j] = a[i] == b[j]
+          ? prev_memo[j + 1]
+          : 1 + std::min({ cur_memo[j + 1], prev_memo[j + 1], prev_memo[j] });
+      }
+
+      std::swap(prev_memo, cur_memo);
+    }
+
+    const auto res = prev_memo[0];
+    delete[] cur_memo;
+    delete[] prev_memo;
+
+    return res;
+  }
 }
 
 int LevenshteinDistance(const string& A, const string& B) {
@@ -152,7 +208,9 @@ int LevenshteinDistance(const string& A, const string& B) {
   // std::unordered_map<std::pair<int, int>, int, PairHash> memo;
   // return using_hash_memo(A, B, memo);
   // return bottom_up_vector_memo(A, B);
-  return bottom_up_raw_memo(A, B);
+  // return bottom_up_raw_memo(A, B);
+  return bottom_up_vector_1d_memo(A, B);
+  // return bottom_up_raw_1d_memo(A, B);
 }
 
 int main(int argc, char* argv[]) {
