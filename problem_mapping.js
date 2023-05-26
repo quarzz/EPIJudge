@@ -2162,7 +2162,7 @@ problem_mapping = {
         },
         "16.02 Compute the Levenshtein distance": {
             "C++: levenshtein_distance.cc": {
-                "passed": 0,
+                "passed": 100,
                 "total": 100
             },
             "Java: LevenshteinDistance.java": {
