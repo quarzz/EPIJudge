@@ -2414,7 +2414,7 @@ problem_mapping = {
         },
         "17.06 The gasup problem": {
             "C++: refueling_schedule.cc": {
-                "passed": 0,
+                "passed": 202,
                 "total": 202
             },
             "Java: RefuelingSchedule.java": {
