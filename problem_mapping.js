@@ -2542,7 +2542,7 @@ problem_mapping = {
         },
         "18.07 Transform one string to another": {
             "C++: string_transformability.cc": {
-                "passed": 0,
+                "passed": 48,
                 "total": 48
             },
             "Java: StringTransformability.java": {
