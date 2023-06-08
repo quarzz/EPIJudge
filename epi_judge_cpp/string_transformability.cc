@@ -8,6 +8,13 @@ using std::unordered_set;
 
 #define log(x) std::cout << #x << ": " << (x) << std::endl
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, std::vector<T> v) {
+  for (const auto& x: v)
+    os << x << ' ';
+  return os << '\n';
+}
+
 namespace {
   using It = std::unordered_set<std::string>::iterator;
 
@@ -54,6 +61,28 @@ namespace {
 
     return -1;
   }
+
+  std::vector<int> shortest_exponentiation_chain(const int n) {
+    std::queue<const std::vector<int>> q;
+    q.push({1});
+
+    while (!q.empty()) {
+      const auto cur = q.front();
+      q.pop();
+
+      if (cur.back() == n) return cur;
+
+      for (size_t i = 0; i < cur.size(); ++i) {
+        for (size_t j = i; j < cur.size(); ++j) {
+          auto next = cur;
+          next.emplace_back(cur[i] + cur[j]);
+          q.push(next);
+        }
+      }
+    }
+
+    return {};
+  }
 }
 
 int TransformString(unordered_set<string> D, const string& s, const string& t) {
@@ -61,6 +90,10 @@ int TransformString(unordered_set<string> D, const string& s, const string& t) {
 }
 
 int main(int argc, char* argv[]) {
+  log(shortest_exponentiation_chain(15));
+
+  return 0;
+
   std::vector<std::string> args{argv + 1, argv + argc};
   std::vector<std::string> param_names{"D", "s", "t"};
   return GenericTestMain(args, "string_transformability.cc",
