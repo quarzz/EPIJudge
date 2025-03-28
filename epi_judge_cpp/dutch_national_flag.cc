@@ -1,4 +1,6 @@
 #include <array>
+#include <concepts>
+#include <type_traits>
 #include <vector>
 
 #include "test_framework/generic_test.h"
@@ -7,8 +9,8 @@
 using std::vector;
 enum class Color { kRed, kWhite, kBlue };
 
-// #define log(x) std::cout << #x << ": " << x << std::endl
-#define log(x) nullptr
+#define LOG(x) std::cout << #x << ": " << x << std::endl
+// #define LOG(x) nullptr
 
 template <typename T>
 std::ostream& operator<<(std::ostream &os, const vector<T> &v) {
@@ -105,8 +107,64 @@ namespace {
   }
 }
 
+template<typename T, typename Fn>
+requires std::regular_invocable<Fn, T> && std::is_integral_v<std::invoke_result_t<Fn, T>>
+void partition(vector<T>& v,  const unsigned int ngroups, const Fn fn) {
+  // Invariants:
+  // fn(...) = 0: [0, ends[0])
+  // fn(...) = i: [ends[i - 1], ends[i])
+  // unclassified: [ends[ngroups - 1], size)
+  const size_t size = v.size();
+  vector<size_t> ends(ngroups, 0);
+  while (ends[ngroups - 1] < size) {
+    const auto cur_group = fn(v[ends[ngroups - 1]]) % ngroups;
+    ++ends[ngroups - 1];
+    for (auto i = ngroups - 1; i-- >= cur_group + 1;) {
+      using std::swap;
+      swap(v[ends[i]++], v[ends[i + 1] - 1]);
+    }
+  }
+}
+
+template<typename T, typename Predicate>
+requires std::predicate<Predicate, const T&>
+void stable_partition(vector<T>& v, const Predicate predicate) {
+  // Invariant:
+  // False group lies in [i + 1, j]
+  // True group lies in [j + 1, size - 1]
+  // Yet unclassified elements lie in [0, i]
+  const int size = v.size();
+  for (int i = size - 1, j = size - 1; i >= 0; --i) {
+    if (predicate(v[i])) {
+      using std::swap;
+      swap(v[i], v[j--]);
+    }
+  }
+}
+
+void test_stable_partition() {
+  {
+    const vector original{1, 3, 5, 7};
+    vector nums{1, 3, 5, 7};
+    stable_partition(nums, [](int x) { return x % 2; });
+    assert(nums == original);
+  }
+
+  {
+    vector nums{1, 2, 3, 4, 5, 6, 7};
+    stable_partition(nums, [](int x) { return x % 2; });
+    const vector expected_tail{1, 3, 5, 7};
+    const vector actual_tail((nums.end() - expected_tail.size()), nums.end());
+    assert(actual_tail == expected_tail);
+  }
+}
+
 void DutchFlagPartition(int pivot_index, vector<Color>* A_ptr) {
-  contigous(pivot_index, *A_ptr);
+  const auto pivot = (*A_ptr)[pivot_index];
+  partition(*A_ptr, 3, [pivot](const Color color) {
+    return color < pivot ? 0 : color == pivot ? 1 : 2;
+  });
+  // contigous(pivot_index, *A_ptr);
 }
 
 void DutchFlagPartitionWrapper(TimedExecutor& executor, const vector<int>& A,
@@ -157,7 +215,6 @@ int main(int argc, char* argv[]) {
   // DutchFlagPartition(1, &colors);
   // std::cout << colors;
   // return 0;
-
   std::vector<std::string> args{argv + 1, argv + argc};
   std::vector<std::string> param_names{"executor", "A", "pivot_idx"};
   return GenericTestMain(args, "dutch_national_flag.cc",
