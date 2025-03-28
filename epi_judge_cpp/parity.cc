@@ -35,10 +35,10 @@ namespace {
 
   template <std::size_t... I>
   constexpr Cache create_cache(std::index_sequence<I...>) {
-    return std::array<std::uint16_t, CACHE_SIZE> { smarter(I)... };
+    return Cache { smarter(I)... };
   }
 
-  constexpr std::array<std::uint16_t, CACHE_SIZE> cache = create_cache(std::make_index_sequence<CACHE_SIZE>{});
+  constexpr Cache cache = create_cache(std::make_index_sequence<CACHE_SIZE>{});
 
   // Passing
   constexpr std::uint16_t cached(std::uint64_t x) {
