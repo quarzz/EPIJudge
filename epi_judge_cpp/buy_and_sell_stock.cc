@@ -6,6 +6,8 @@
 using std::multiset;
 using std::vector;
 
+#define LOG(x) std::cout << #x << ": " << (x) << "\n"
+
 namespace {
   double brute_force(const vector<double>& prices) {
     double res = 0.0;
@@ -31,15 +33,34 @@ namespace {
   }
 
   double moving_min(const vector<double>& prices) {
-    double res = 0.0;
-    double min = std::numeric_limits<double>::max();
+    // Invariants:
+    // best_profit on prefix before current price
+    double best_profit = 0.0;
+    // min_price on prefix before current price
+    double min_price = std::numeric_limits<double>::max();
 
     for (const auto price: prices) {
-      res = std::max(price - min, res);
-      min = std::min(price, min);
+      best_profit = std::max(price - min_price, best_profit);
+      min_price = std::min(price, min_price);
     }
 
-    return res;
+    return best_profit;
+  }
+
+  int longest_equal_subarray(const std::vector<int>& nums) {
+    // Invariants:
+    // first – leftmost start of equal subarray with elements equal to nums[i - 1]
+    // max_length – max length of such subarrays so far
+    size_t first = 0;
+    size_t max_length = 1;
+    for (size_t i = 1; i < nums.size(); ++i) {
+      if (nums[i] != nums[i - 1]) {
+        max_length = std::max(max_length, i - first);
+        first = i;
+      }
+    }
+    max_length = std::max(max_length, nums.size() - first);
+    return max_length;
   }
 }
 
