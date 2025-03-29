@@ -34,17 +34,17 @@ namespace {
 
   double moving_min(const vector<double>& prices) {
     // Invariants:
-    // best_profit on prefix before current price
-    double best_profit = 0.0;
+    // max_profit on prefix before current price
+    double max_profit = 0.0;
     // min_price on prefix before current price
     double min_price = std::numeric_limits<double>::max();
 
     for (const auto price: prices) {
-      best_profit = std::max(price - min_price, best_profit);
+      max_profit = std::max(price - min_price, max_profit);
       min_price = std::min(price, min_price);
     }
 
-    return best_profit;
+    return max_profit;
   }
 
   int longest_equal_subarray(const std::vector<int>& nums) {
