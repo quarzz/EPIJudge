@@ -636,7 +636,7 @@ problem_mapping = {
         },
         "6.12 Find the first occurrence of a substring": {
             "C++: substring_match.cc": {
-                "passed": 0,
+                "passed": 835,
                 "total": 835
             },
             "Java: SubstringMatch.java": {
