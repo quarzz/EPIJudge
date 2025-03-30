@@ -1,11 +1,22 @@
+#include <cstdlib>
 #include <string>
 
 #include "test_framework/generic_test.h"
 using std::string;
 
 string SnakeString(const string& s) {
-  // TODO - you fill in here.
-  return "";
+  string result;
+  result.reserve(s.size());
+  for (size_t i = 1; i < s.size(); i += 4) {
+    result += s[i];
+  }
+  for (size_t i = 0; i < s.size(); i += 2) {
+    result += s[i];
+  }
+  for (size_t i = 3; i < s.size(); i += 4) {
+    result += s[i];
+  }
+  return result;
 }
 
 int main(int argc, char* argv[]) {
