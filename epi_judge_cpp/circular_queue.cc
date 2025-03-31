@@ -2,21 +2,42 @@
 #include "test_framework/serialization_traits.h"
 #include "test_framework/test_failure.h"
 class Queue {
- public:
-  Queue(size_t capacity) {}
+public:
+  Queue(size_t capacity): buf_(capacity) {}
+
   void Enqueue(int x) {
-    // TODO - you fill in here.
-    return;
+    if (size_ == buf_.size()) {
+      std::rotate(buf_.begin(), buf_.begin() + first_, buf_.end());
+      buf_.resize(size_ * scale_);
+      first_ = 0;
+      last_ = size_;
+    }
+
+    buf_[last_] = x;
+    last_ = (last_ + 1) % buf_.size();
+    ++size_;
   }
+
   int Dequeue() {
-    // TODO - you fill in here.
-    return 0;
+    const auto val = buf_[first_];
+    first_ = (first_ + 1) % buf_.size();
+    --size_;
+    return val;
   }
+
   int Size() const {
-    // TODO - you fill in here.
-    return 0;
+    return size_;
   }
+
+private:
+  std::vector<int> buf_;
+  size_t size_ = 0;
+  size_t first_ = 0;
+  size_t last_ = 0;
+
+  static const size_t scale_ = 2;
 };
+
 struct QueueOp {
   enum class Operation { kConstruct, kDequeue, kEnqueue, kSize } op;
   int argument;

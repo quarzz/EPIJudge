@@ -7,15 +7,25 @@
 #include "test_framework/test_failure.h"
 using std::length_error;
 class Queue {
- public:
+public:
   void Enqueue(int x) {
-    // TODO - you fill in here.
-    return;
+    in.push(x);
   }
   int Dequeue() {
-    // TODO - you fill in here.
-    return 0;
+    if (out.empty()) {
+      while (!in.empty()) {
+        out.push(in.top());
+        in.pop();
+      }
+    }
+    const auto val = out.top();
+    out.pop();
+    return val;
   }
+
+private:
+  std::stack<int> in;
+  std::stack<int> out;
 };
 struct QueueOp {
   enum class Operation { kConstruct, kDequeue, kEnqueue } op;
