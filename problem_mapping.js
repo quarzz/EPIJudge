@@ -1228,7 +1228,7 @@ problem_mapping = {
         },
         "10.02 Sort an increasing-decreasing array": {
             "C++: sort_increasing_decreasing_array.cc": {
-                "passed": 0,
+                "passed": 203,
                 "total": 203
             },
             "Java: SortIncreasingDecreasingArray.java": {
